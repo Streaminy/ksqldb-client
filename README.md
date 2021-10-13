@@ -15,6 +15,7 @@ npm install ksqldb-client
 ```javascript
 const KsqldbClient = require("ksqldb-client");
 const client = new KsqldbClient();
+await client.connect();
 
 /* ... */
 
@@ -118,4 +119,4 @@ The status returned on each operation is the same one returned by KsqlDB (200, 4
 
 # Stream Properties and variables replacements
 
-Coming soon 
+[Coming soon] 
