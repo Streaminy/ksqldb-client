@@ -1,6 +1,6 @@
 # ksqldb-client
 
-Simple KsqlDB client for Node.js using JavaScript made by Streaminy.
+Simple KsqlDB client for Node.js using JavaScript 🚀
 
 # Documentation
 
@@ -15,11 +15,18 @@ npm install ksqldb-client
 ```javascript
 const KsqldbClient = require("ksqldb-client");
 const client = new KsqldbClient();
-await client.connect();
 
-/* ... */
+const asyncOperation = async () => {
+    await client.connect();
+    const streams = await client.listStreams();
+    console.log(streams);
+    
+    /* ... */
+    
+    await client.disconnect();
+}
 
-const streams = await client.listStreams();
+asyncOperation();
 ```
 
 ## Username authorization
@@ -45,7 +52,7 @@ const client = new KsqldbClient(options);
 ## Pull Queries
 
 ```javascript
-const { data, status, error } = await client.query("SELECT * FROM table WHERE column = 'string' LIMIT 10;");
+const { data, status, error } = await client.query("SELECT * FROM table WHERE column = 'string';");
 const { metadata, rows } = data;
 ```
 
