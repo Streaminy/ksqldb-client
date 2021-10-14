@@ -20,11 +20,11 @@ const asyncOperation = async () => {
     await client.connect();
     const streams = await client.listStreams();
     console.log(streams);
-    
+
     /* ... */
-    
+
     await client.disconnect();
-}
+};
 
 asyncOperation();
 ```
@@ -126,4 +126,4 @@ The status returned on each operation is the same one returned by KsqlDB (200, 4
 
 # Stream Properties and variables replacements
 
-[Coming soon] 
+[Coming soon]
