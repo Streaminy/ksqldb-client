@@ -132,25 +132,25 @@ Optional extra parameters can be used as follow:
 // Statements
 const executeStatementResults = await client.executeStatement(statement, {
     sessionVariables: {
-        "STREAM_NAME": STREAM_NAME,
-        "TOPIC_NAME": TOPIC_NAME
-    }
+        STREAM_NAME: STREAM_NAME,
+        TOPIC_NAME: TOPIC_NAME,
+    },
 });
 
 // Querys
 const query = "SELECT * FROM ${TABLE_NAME} WHERE WORD in ('${FIRST_WORD}', '${SECOND_WORD}');";
 const { data: queryData, error } = await client.query(query, {
     sessionVariables: {
-        "TABLE_NAME": TABLE_NAME,
-        "FIRST_WORD": "tree",
-        "SECOND_WORD": "wind"
-    }
+        TABLE_NAME: TABLE_NAME,
+        FIRST_WORD: "tree",
+        SECOND_WORD: "wind",
+    },
 });
 
 // Stream Query
 const streamQueryResults = await client.streamQuery("SELECT * FROM ${TABLE_NAME} EMIT CHANGES;", cb, {
     sessionVariables: {
-        "TABLE_NAME": TABLE_NAME
-    }
+        TABLE_NAME: TABLE_NAME,
+    },
 });
 ```

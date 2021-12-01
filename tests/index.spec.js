@@ -117,7 +117,13 @@ describe("KsqlDB Client integration test", () => {
                 VALUE_FORMAT='JSON'
             );
         `;
-        const { data: queryData, status, error } = await client.executeStatement(statement, { sessionVariables: { "STREAM_NAME": STREAM_NAME, "TOPIC_NAME": TOPIC_NAME } });
+        const {
+            data: queryData,
+            status,
+            error,
+        } = await client.executeStatement(statement, {
+            sessionVariables: { STREAM_NAME: STREAM_NAME, TOPIC_NAME: TOPIC_NAME },
+        });
 
         assert(status === 200 && error === undefined);
 
@@ -245,7 +251,6 @@ describe("KsqlDB Client integration test", () => {
         await client.disconnect();
     }).timeout(default_timeout);
 
-
     it("Should run successfully a custom query with session variables", async () => {
         // Sleep 2sec. Wait table creation.
         await new Promise((resolve) => {
@@ -258,7 +263,9 @@ describe("KsqlDB Client integration test", () => {
         await client.connect();
 
         const query = "SELECT * FROM ${TABLE_NAME} WHERE WORD in ('${FIRST_WORD}', '${SECOND_WORD}');";
-        const { data: queryData, error } = await client.query(query, { sessionVariables: { "TABLE_NAME": TABLE_NAME, "FIRST_WORD": "tree", "SECOND_WORD": "wind" } });
+        const { data: queryData, error } = await client.query(query, {
+            sessionVariables: { TABLE_NAME: TABLE_NAME, FIRST_WORD: "tree", SECOND_WORD: "wind" },
+        });
         assert(error === undefined);
 
         const { rows, metadata } = queryData;
@@ -312,7 +319,9 @@ describe("KsqlDB Client integration test", () => {
             }
         };
 
-        const streamQueryResults = await client.streamQuery("SELECT * FROM ${TABLE_NAME} EMIT CHANGES;", cb, { sessionVariables: { "TABLE_NAME": TABLE_NAME } });
+        const streamQueryResults = await client.streamQuery("SELECT * FROM ${TABLE_NAME} EMIT CHANGES;", cb, {
+            sessionVariables: { TABLE_NAME: TABLE_NAME },
+        });
         const { error, status } = streamQueryResults;
         assert(error === undefined && status === 200);
 

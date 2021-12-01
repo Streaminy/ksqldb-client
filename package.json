@@ -1,6 +1,6 @@
 {
     "name": "ksqldb-client",
-    "version": "1.0.5-beta",
+    "version": "1.0.5",
     "description": "Simple KsqlDB client for Node.js using JavaScript.",
     "main": "lib/index.js",
     "scripts": {
