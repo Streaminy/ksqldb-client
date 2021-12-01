@@ -1,7 +1,7 @@
 {
     "name": "ksqldb-client",
-    "version": "1.0.4",
-    "description": "Simple KsqlDB client for Node.js using JavaScript made by Streaminy.",
+    "version": "1.0.5-beta",
+    "description": "Simple KsqlDB client for Node.js using JavaScript.",
     "main": "lib/index.js",
     "scripts": {
         "build": "npm run prettier && npm run lint && babel src -d lib",

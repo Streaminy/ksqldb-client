@@ -321,16 +321,27 @@ module.exports = class KsqldbClient {
     /**
      * This method may be used to issue pull queries.
      * @param {string} statement of query to execute
+     * @param {Object} optionalExtraParams like streamsProperties, sessionVariables or commandSequenceNumber
      *
      * @return a promise that completes once the server response is received
      */
-    async query(query) {
+    async query(query, optionalExtraParams) {
         if (this.#asyncConnection) {
             await this.#asyncConnection;
 
-            const body = {
+            let body = {};
+
+            if (optionalExtraParams) {
+                body = {
+                    ...optionalExtraParams,
+                };
+            }
+
+            body = {
+                ...body,
                 sql: query,
             };
+
             const buffer = Buffer.from(JSON.stringify(body));
             const requestHandler = new QueryHandler();
             const requestPromise = this.#request(KsqldbClient.QUERY_STREAM_ENDPOINT, buffer, requestHandler);
@@ -349,8 +360,9 @@ module.exports = class KsqldbClient {
      * This method may be used to issue push queries.
      * @param {string} statement of query to execute
      * @param {Function} callback to push query data
+     * @param {Object} optionalExtraParams like streamsProperties, sessionVariables or commandSequenceNumber
      */
-    async streamQuery(streamQuery, callback) {
+    async streamQuery(streamQuery, callback, optionalExtraParams) {
         if (this.#asyncConnection) {
             await this.#asyncConnection;
 
@@ -358,9 +370,19 @@ module.exports = class KsqldbClient {
              * Parser wrapper around callback to load metadata
              */
 
-            const body = {
+            let body = {};
+
+            if (optionalExtraParams) {
+                body = {
+                    ...optionalExtraParams,
+                };
+            }
+
+            body = {
+                ...body,
                 sql: streamQuery,
             };
+
             const buffer = Buffer.from(JSON.stringify(body));
             const requestHandler = new StreamQueryHandler(callback);
             const requestPromise = this.#request(

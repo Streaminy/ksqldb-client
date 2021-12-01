@@ -49,14 +49,14 @@ const options = {
 const client = new KsqldbClient(options);
 ```
 
-## Pull Queries
+## Pull queries
 
 ```javascript
 const { data, status, error } = await client.query("SELECT * FROM table WHERE column = 'string';");
 const { metadata, rows } = data;
 ```
 
-## Push Queries
+## Push queries
 
 ```javascript
 const cb = (data) => {
@@ -69,7 +69,7 @@ const cb = (data) => {
 const { status, error } = await client.streamQuery("SELECT * FROM table EMIT CHANGES;", cb);
 ```
 
-## Terminate Push Query
+## Terminate push query
 
 ```javascript
 const { error } = await client.terminatePushQuery("queryId");
@@ -79,7 +79,7 @@ if (!error) {
 }
 ```
 
-## Execute Statement
+## Execute statement
 
 ```javascript
 await client.executeStatement("DROP TABLE IF EXISTS table;");
@@ -101,7 +101,7 @@ const { metadata, rows } = data;
 const sourceDescription = await client.describeSource("streamName");
 ```
 
-# Handling Errors
+# Handling errors
 
 There are two types of errors.
 
@@ -124,6 +124,33 @@ try {
 
 The status returned on each operation is the same one returned by KsqlDB (200, 400, 500, etc..) and they could be used to troubleshoot errors or assert successful requests.
 
-# Stream Properties and variables replacements
+# Stream properties and session variables
 
-[Coming soon]
+Optional extra parameters can be used as follow:
+
+```javascript
+// Statements
+const executeStatementResults = await client.executeStatement(statement, {
+    sessionVariables: {
+        "STREAM_NAME": STREAM_NAME,
+        "TOPIC_NAME": TOPIC_NAME
+    }
+});
+
+// Querys
+const query = "SELECT * FROM ${TABLE_NAME} WHERE WORD in ('${FIRST_WORD}', '${SECOND_WORD}');";
+const { data: queryData, error } = await client.query(query, {
+    sessionVariables: {
+        "TABLE_NAME": TABLE_NAME,
+        "FIRST_WORD": "tree",
+        "SECOND_WORD": "wind"
+    }
+});
+
+// Stream Query
+const streamQueryResults = await client.streamQuery("SELECT * FROM ${TABLE_NAME} EMIT CHANGES;", cb, {
+    sessionVariables: {
+        "TABLE_NAME": TABLE_NAME
+    }
+});
+```

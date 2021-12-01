@@ -103,25 +103,27 @@ describe("KsqlDB Client integration test", () => {
         await client.disconnect();
     }).timeout(default_timeout);
 
-    it("Should run successfully a create stream statement", async () => {
+    it("Should run successfully a create stream statement using session varaibles", async () => {
         const client = new KsqldbClient(clientParams);
         await client.connect();
 
         const statement = `
-            CREATE STREAM IF NOT EXISTS ${STREAM_NAME} (
+            CREATE STREAM IF NOT EXISTS \${STREAM_NAME} (
                 word VARCHAR
             ) WITH (
-                KAFKA_TOPIC='${TOPIC_NAME}',
+                KAFKA_TOPIC='\${TOPIC_NAME}',
                 PARTITIONS=1,
                 REPLICAS=1,
                 VALUE_FORMAT='JSON'
             );
         `;
-        const { data: queryData, status, error } = await client.executeStatement(statement);
+        const { data: queryData, status, error } = await client.executeStatement(statement, { sessionVariables: { "STREAM_NAME": STREAM_NAME, "TOPIC_NAME": TOPIC_NAME } });
 
         assert(status === 200 && error === undefined);
+
         const { rows } = queryData;
-        assert(Array.isArray(rows) && rows.length === 1);
+        assert(Array.isArray(rows));
+        assert(rows.length === 1);
 
         await client.disconnect();
     }).timeout(default_timeout);
@@ -243,6 +245,32 @@ describe("KsqlDB Client integration test", () => {
         await client.disconnect();
     }).timeout(default_timeout);
 
+
+    it("Should run successfully a custom query with session variables", async () => {
+        // Sleep 2sec. Wait table creation.
+        await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve("Timeout");
+            }, 2000);
+        });
+
+        const client = new KsqldbClient(clientParams);
+        await client.connect();
+
+        const query = "SELECT * FROM ${TABLE_NAME} WHERE WORD in ('${FIRST_WORD}', '${SECOND_WORD}');";
+        const { data: queryData, error } = await client.query(query, { sessionVariables: { "TABLE_NAME": TABLE_NAME, "FIRST_WORD": "tree", "SECOND_WORD": "wind" } });
+        assert(error === undefined);
+
+        const { rows, metadata } = queryData;
+        const expectedColumnNames = ["WORD", "KSQL_COL_0"];
+        assert(Array.isArray(rows));
+        metadata.columnNames.forEach((columnName) => {
+            assert(expectedColumnNames.find((x) => x === columnName) !== undefined);
+        });
+
+        await client.disconnect();
+    }).timeout(default_timeout);
+
     it("Should run successfully a streaming custom query", async () => {
         const client = new KsqldbClient(clientParams);
         await client.connect();
@@ -261,6 +289,30 @@ describe("KsqlDB Client integration test", () => {
         };
 
         const streamQueryResults = await client.streamQuery(`SELECT * FROM ${TABLE_NAME} EMIT CHANGES;`, cb);
+        const { error, status } = streamQueryResults;
+        assert(error === undefined && status === 200);
+
+        await client.disconnect();
+    }).timeout(default_timeout);
+
+    it("Should run successfully a streaming custom query using session variables", async () => {
+        const client = new KsqldbClient(clientParams);
+        await client.connect();
+        let terminatingQuery = false;
+
+        const cb = async (cbData) => {
+            const { metadata } = cbData;
+            const { queryId } = metadata;
+            if (queryId && terminatingQuery === false) {
+                terminatingQuery = true;
+
+                const results = await client.terminatePushQuery(queryId);
+                assert(results.status === 200);
+                await client.disconnect();
+            }
+        };
+
+        const streamQueryResults = await client.streamQuery("SELECT * FROM ${TABLE_NAME} EMIT CHANGES;", cb, { sessionVariables: { "TABLE_NAME": TABLE_NAME } });
         const { error, status } = streamQueryResults;
         assert(error === undefined && status === 200);
 
@@ -461,7 +513,7 @@ describe("KsqlDB Client integration test", () => {
         assert(dropTableStatus === 200);
 
         const dropStreamStatement = `
-            DROP STREAM IF EXISTS ${TABLE_NAME};
+            DROP STREAM IF EXISTS ${STREAM_NAME};
         `;
         const { status: dropStreamStatus } = await client.executeStatement(dropStreamStatement);
         assert(dropStreamStatus === 200);
