@@ -142,8 +142,8 @@ export default class KsqldbClient {
     connect(): Promise<void>;
     disconnect(): Promise<void>;
     executeStatement(statement: string, optionalExtraParams?: OptionalExtraParams, path?: string): Promise<Response>;
-    query(query: string): Promise<Response>;
-    streamQuery(streamQuery: string, callback: (callbackData: Data) => void): Promise<Response>;
+    query(query: string, optionalExtraParams?: OptionalExtraParams): Promise<Response>;
+    streamQuery(streamQuery: string, callback: (callbackData: Data) => void, optionalExtraParams?: OptionalExtraParams): Promise<Response>;
     insertInto(streamName: string, row: Record<string, any>): Promise<InsertResponse>;
     terminatePushQuery(queryId: string): Promise<PushQueryResponse>;
     listStreams(): Promise<Array<Stream>>;
