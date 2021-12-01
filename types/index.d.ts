@@ -22,9 +22,9 @@ export interface ClientOptions {
 }
 
 export interface OptionalExtraParams {
-    streamsProperties: Record<string, string>;
-    sessionVariables: Record<string, string>;
-    commandSequenceNumber: number;
+    streamsProperties?: Record<string, string>;
+    sessionVariables?: Record<string, string>;
+    commandSequenceNumber?: number;
 }
 
 export interface Metadata {
@@ -141,7 +141,7 @@ export default class KsqldbClient {
     constructor(options?: ClientOptions);
     connect(): Promise<void>;
     disconnect(): Promise<void>;
-    executeStatement(statement: string, optionalExtraParams: OptionalExtraParams, path?: string): Promise<Response>;
+    executeStatement(statement: string, optionalExtraParams?: OptionalExtraParams, path?: string): Promise<Response>;
     query(query: string): Promise<Response>;
     streamQuery(streamQuery: string, callback: (callbackData: Data) => void): Promise<Response>;
     insertInto(streamName: string, row: Record<string, any>): Promise<InsertResponse>;
