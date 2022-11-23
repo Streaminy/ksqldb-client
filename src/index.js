@@ -175,8 +175,12 @@ module.exports = class KsqldbClient {
             "Content-Length": buffer.length,
         };
 
-        if (this.authorization && this.authorization.username && this.authorization.password) {
-            const authToken = this.#buildBasicAuth(this.authorization);
+        if (
+            this.#options.authorization &&
+            this.#options.authorization.username &&
+            this.#options.authorization.password
+        ) {
+            const authToken = this.#buildBasicAuth(this.#options.authorization);
             reqConfig.Authorization = authToken;
         }
 
